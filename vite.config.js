@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  base: '/', // <-- Add this if you're seeing asset loading issues
   plugins: [react(), tailwindcss()],
   server: {
     host: '0.0.0.0',
@@ -10,7 +11,7 @@ export default defineConfig({
     allowedHosts: ['platform-frontend-4r45.onrender.com'],
     proxy: {
       '/api': {
-        target: 'http://localhost:8000', // Replace with your backend URL if needed
+        target: 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
