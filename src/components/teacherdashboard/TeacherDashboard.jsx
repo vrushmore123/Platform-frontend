@@ -16,8 +16,8 @@ const TeacherDashboard = () => {
     title: "",
     description: "",
     category: "",
-    thumbnail_image: "", 
-    thumbnailPreview: "", 
+    thumbnail_image: "",
+    thumbnailPreview: "",
     modules: [],
   });
   const [currentModule, setCurrentModule] = useState({
@@ -57,13 +57,22 @@ const TeacherDashboard = () => {
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const response = await fetch("https://platform-backend-c4zp.onrender.com/teacher_courses/");
+        const response = await fetch(
+          "https://platform-backend-c4zp.onrender.com/teacher_courses/"
+        );
         if (!response.ok) throw new Error("Failed to fetch courses");
         const data = await response.json();
-        console.log("API Response:", data);
-
-        const draftCourses = data.filter((c) => c.status === "draft");
-        const publishedCourses = data.filter((c) => c.status === "published");
+        const coursesWithThumb = data.map((c) => ({
+          ...c,
+          thumbnail_image:
+            c.thumbnail_url || c.thumbnail_image || "/placeholder.svg",
+        }));
+        const draftCourses = coursesWithThumb.filter(
+          (c) => c.status === "draft"
+        );
+        const publishedCourses = coursesWithThumb.filter(
+          (c) => c.status === "published"
+        );
 
         setCourses({ draft: draftCourses, published: publishedCourses });
         setStats({
@@ -72,6 +81,7 @@ const TeacherDashboard = () => {
           enrolledStudents: [],
           activeStudents: 0,
         });
+        console.log("Fetched courses:", data);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }
@@ -117,7 +127,6 @@ const TeacherDashboard = () => {
 
   const handleEditCourse = (courseId) => {
     console.log("Editing course:", courseId);
-    // Implement your edit course logic here
   };
 
   const handleFileUpload = (e) => {

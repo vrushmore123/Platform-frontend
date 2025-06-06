@@ -26,6 +26,9 @@ import {
   LogOut,
   CheckCircle,
   ExternalLink,
+  ClipboardList,
+  Megaphone,
+  MessageCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -47,7 +50,6 @@ export default function TeacherCoursesSection() {
       const response = await axios.get(
         "https://platform-backend-c4zp.onrender.com/teacher_courses/"
       );
-      console.log(response.data);
 
       const coursesArray = Array.isArray(response.data)
         ? response.data
@@ -57,30 +59,36 @@ export default function TeacherCoursesSection() {
         const publishedCourses = coursesArray.filter(
           (course) => course.status === "published"
         );
+        console.log(publishedCourses);
 
         setCourses(
           publishedCourses.map((course) => {
-            // Handle thumbnail - check both null and undefined
             const thumb = course.thumbnail_image;
             let thumbnailUrl;
 
             if (!thumb) {
-              thumbnailUrl = "/placeholder.svg";
-            } else if (thumb.startsWith("http") || thumb.startsWith("data:")) {
-              thumbnailUrl = thumb;
+              thumbnailUrl = "/placeholder.svg"; // default
+            } else if (/^(https?:\/\/|data:)/.test(thumb)) {
+              thumbnailUrl = thumb; // full URL or base64
             } else {
-              const normalizedPath = thumb.replace(/^\/+/, "");
-              thumbnailUrl = `https://platform-backend-c4zp.onrender.com/${normalizedPath}`;
+              const cleaned = thumb.replace(/^[/\\]+/, "").replace(/\\/g, "/");
+              const BASE_URL =
+                window.location.hostname === "localhost"
+                  ? "http://localhost:8000"
+                  : "https://platform-backend-c4zp.onrender.com";
+              thumbnailUrl = `${BASE_URL}/${cleaned}`; // append cleaned path here
+
+              console.log("Resolved Thumbnail URL:", thumbnailUrl);
             }
 
             return {
               id: course.id,
               title: course.title,
-              instructor: course.teacher,
-              duration: course.duration,
+              instructor: course.teacher || course.category || "Instructor",
+              duration: course.duration || "N/A",
               level: course.level,
               type: (course.type || "free").toLowerCase(),
-              thumbnail_image: thumbnailUrl, // Fixed: using the correct variable name
+              thumbnail_image: thumbnailUrl,
               status: course.status,
               rating: course.rating || 5.0,
               progress: course.progress || Math.floor(Math.random() * 100),
@@ -92,8 +100,7 @@ export default function TeacherCoursesSection() {
                 (Math.floor(Math.random() * 3) + 2) * 9.99,
               lastAccessed: course.lastAccessed || "2 days ago",
               studentsEnrolled:
-                course.studentsEnrolled ||
-                Math.floor(Math.random() * 5000) + 500,
+                course.student_count || Math.floor(Math.random() * 5000) + 500,
               description: course.description,
             };
           })
@@ -260,14 +267,13 @@ export default function TeacherCoursesSection() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Modern Navbar */}
       <nav className="bg-white shadow-md sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <img
-                  src="/placeholder.svg?height=40&width=40"
+                  src="./praktiklyLogo.jpg"
                   alt="Praktikly"
                   className="h-10 w-auto"
                 />
@@ -469,8 +475,6 @@ export default function TeacherCoursesSection() {
               </div>
             </div>
           </div>
-
-          {/* Mobile menu */}
           {mobileMenuOpen && (
             <div className="md:hidden bg-white border-t pt-2 pb-3 space-y-1">
               <a
@@ -602,8 +606,6 @@ export default function TeacherCoursesSection() {
           </div>
         </div>
       </div>
-
-      {/* Course Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h2 className="text-2xl font-bold text-gray-800">Your Courses</h2>
@@ -699,6 +701,7 @@ export default function TeacherCoursesSection() {
                     alt={course.title}
                     className="w-full h-48 object-cover"
                   />
+
                   <span
                     className={`absolute top-4 right-4 px-2 py-1 rounded-full text-xs font-medium ${
                       course.type === "free"
@@ -767,7 +770,29 @@ export default function TeacherCoursesSection() {
                 <div className="p-5 pt-0 flex justify-between items-center border-t border-gray-100">
                   <div>
                     {course.type === "free" ? (
-                      <span className="text-green-600 font-bold">Free</span>
+                      <div className="flex items-center space-x-3">
+                        <Link
+                          to={`/courses/${course.id}/assignments`}
+                          title="Assignments"
+                          className="p-1 text-green-600 hover:text-green-800"
+                        >
+                          <ClipboardList className="w-5 h-5" />
+                        </Link>
+                        <Link
+                          to={`/courses/${course.id}/announcements`}
+                          title="Announcements"
+                          className="p-1 text-green-600 hover:text-green-800"
+                        >
+                          <Megaphone className="w-5 h-5" />
+                        </Link>
+                        <Link
+                          to={`/courses/${course.id}/discussion`}
+                          title="Discussion"
+                          className="p-1 text-green-600 hover:text-green-800"
+                        >
+                          <MessageCircle className="w-5 h-5" />
+                        </Link>
+                      </div>
                     ) : (
                       <div className="flex items-end">
                         <span className="text-teal-600 font-bold text-lg">

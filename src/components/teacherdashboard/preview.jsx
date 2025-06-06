@@ -41,7 +41,6 @@ const Preview = () => {
   const [completedLessons, setCompletedLessons] = useState([]);
   const [publishingStatus, setPublishingStatus] = useState(null);
 
-  // Fetch course data on mount
   useEffect(() => {
     const fetchCourse = async () => {
       try {
@@ -51,20 +50,41 @@ const Preview = () => {
         );
         if (!res.ok) throw new Error("Failed to fetch course data");
         const data = await res.json();
-        setCourse(data);
+
+        console.log("thumbnail_image from API:", data.thumbnail_image);
+
+        const API_BASE = "https://platform-backend-c4zp.onrender.com";
+        let thumbUrl = "";
+        if (data.thumbnail_image) {
+          const raw = data.thumbnail_image;
+          if (raw.startsWith("data:")) {
+            thumbUrl = raw; // inline base64
+          } else if (raw.startsWith("http")) {
+            thumbUrl = raw;
+          } else if (raw.startsWith("/")) {
+            thumbUrl = `${API_BASE}${raw}`;
+          } else {
+            thumbUrl = `${API_BASE}/${raw}`;
+          }
+        }
+
+        // Debug the normalized URL
+        console.log("Normalized thumbnail URL:", thumbUrl);
+
         setTitle(data.title || "");
         setDescription(data.description || "");
         setCategory(data.category || "");
         setLevel(data.level || "");
-        setImagePreview(data.thumbnail_image || "");
-        setVideoUrl(data.video_url || "");
-        console.log(data);
-
+        setCourse(data);
+        setImagePreview(thumbUrl);
         if (data.modules?.length > 0) {
           setExpandedModules({ 0: true });
-          setSelectedLesson(data.modules[0].lessons?.[0] || null);
+          const firstLesson = data.modules[0].lessons?.[0] || null;
+          setSelectedLesson(firstLesson);
+          setVideoUrl(firstLesson?.video_url || data.video_url || "");
         }
         setError(null);
+        console.log("Course data loaded successfully:", data);
       } catch (err) {
         console.error(err);
         setError("Could not load course data.");
@@ -84,9 +104,9 @@ const Preview = () => {
 
   const handleLessonClick = (lesson) => {
     setSelectedLesson(lesson);
-    // If the lesson has its own video URL, use that, otherwise use the course video URL
-    if (lesson.video) {
-      setVideoUrl(lesson.video);
+
+    if (lesson.video_url) {
+      setVideoUrl(lesson.video_url);
     }
     if (window.innerWidth < 768) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -128,10 +148,7 @@ const Preview = () => {
   const submitCourse = async () => {
     setPublishingStatus("loading");
     try {
-      // Prepare the thumbnail image data
       let thumbnailImage = course?.thumbnail_image || "";
-
-      // If a new image file was selected, convert it to base64
       if (imageFile) {
         try {
           thumbnailImage = await fileToBase64(imageFile);
@@ -631,9 +648,9 @@ const Preview = () => {
                   {selectedLesson.title}
                 </h2>
                 <div className="flex items-center gap-2">
-                  {selectedLesson.resource && (
+                  {selectedLesson.resource_url && (
                     <a
-                      href={selectedLesson.resource}
+                      href={selectedLesson.resource_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-sm text-purple-700 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-3 py-1 rounded-lg transition-colors"

@@ -80,12 +80,20 @@ const CreateCoursePage = () => {
           const data = await response.json();
 
           if (response.ok) {
+            // normalize backend thumbnail path into a full URL
+            const thumbPath = data.thumbnail_url || data.thumbnail_image;
+            const thumbnailUrl = thumbPath
+              ? new URL(
+                  thumbPath.replace(/^\/+/, ""),
+                  "https://platform-backend-c4zp.onrender.com"
+                ).href
+              : null;
             setCourse({
               title: data.title,
               description: data.description,
               category: data.category,
-              thumbnail: data.thumbnail_image,
-              thumbnailName: data.thumbnail_name || "",
+              thumbnail: thumbnailUrl, // full URL for preview
+              thumbnailName: thumbPath ? thumbPath.split("/").pop() : "",
               modules: data.modules || [],
               status: data.status || "draft",
             });
@@ -207,11 +215,14 @@ const CreateCoursePage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("https://platform-backend-c4zp.onrender.com/teacher_courses/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(getCoursePayload(status)),
-      });
+      const response = await fetch(
+        "https://platform-backend-c4zp.onrender.com/teacher_courses/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(getCoursePayload(status)),
+        }
+      );
 
       const data = await response.json();
 
@@ -278,8 +289,8 @@ const CreateCoursePage = () => {
       description: module.description || "",
       lessons: module.lessons.map((lesson) => ({
         title: lesson.title || "",
-        video_url: lesson.video || "", 
-        resource_url: lesson.resource || "", 
+        video_url: lesson.video || "",
+        resource_url: lesson.resource || "",
         duration: lesson.duration || "",
         summary: lesson.summary || "",
       })),

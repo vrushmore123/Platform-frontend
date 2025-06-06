@@ -9,6 +9,9 @@ import {
   Edit,
   Eye,
   HelpCircle,
+  ClipboardList,
+  Megaphone,
+  MessageCircle,
 } from "lucide-react";
 
 const CourseCard = ({
@@ -58,6 +61,10 @@ const CourseCard = ({
     }
   };
 
+  const handleAssignments = () => console.warn("Assignments clicked");
+  const handleAnnouncements = () => console.warn("Announcements clicked");
+  const handleDiscussion = () => console.warn("Discussion clicked");
+
   const statusConfig = {
     published: {
       color: "bg-emerald-100 text-emerald-800",
@@ -88,17 +95,17 @@ const CourseCard = ({
       <div className="relative h-48 bg-gray-100">
         {course.thumbnail_image ? (
           <img
-            src={course.thumbnail_image || "./full stack developer.jpeg"}
+            src={course.thumbnail_image}
             alt={course.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = "./full stack developer.jpeg";
+              e.target.src = "/placeholder.svg";
             }}
           />
         ) : (
           <img
-            src="./full stack developer.jpeg"
+            src="/placeholder.svg"
             alt={course.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
@@ -194,6 +201,27 @@ const CourseCard = ({
           </div>
 
           <div className="flex space-x-2">
+            <button
+              onClick={handleAssignments}
+              className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+              title="Assignments"
+            >
+              <ClipboardList className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleAnnouncements}
+              className="p-2 text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 rounded-md transition-colors"
+              title="Announcements"
+            >
+              <Megaphone className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleDiscussion}
+              className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
+              title="Discussion"
+            >
+              <MessageCircle className="w-4 h-4" />
+            </button>
             <button
               onClick={handleEdit}
               className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
