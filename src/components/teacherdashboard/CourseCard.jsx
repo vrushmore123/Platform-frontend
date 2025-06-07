@@ -93,9 +93,9 @@ const CourseCard = ({
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden w-full max-w-sm mx-auto transition-all duration-300 hover:shadow-md hover:-translate-y-1 border border-gray-200 group">
       <div className="relative h-48 bg-gray-100">
-        {course.thumbnail_image ? (
+        {course.thumbnail_image || course.thumbnail_url ? (
           <img
-            src={course.thumbnail_image}
+            src={course.thumbnail_image || course.thumbnail_url}
             alt={course.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {

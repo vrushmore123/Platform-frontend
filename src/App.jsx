@@ -6,6 +6,7 @@ import Courses from "./pages/courses";
 import CourseDetail from "./pages/coursesdetails";
 import CourseLearning from "./pages/Learncourse";
 import TeacherDashboard from "./components/teacherdashboard/TeacherDashboard";
+import StudentDashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
 import AddCoursePage from "./components/teacherdashboard/CreateCoursePage";
 import Preview from "./components/teacherdashboard/preview";
@@ -32,6 +33,7 @@ function App() {
         <Route path="/course/:id/learn" element={<CourseLearning />} />
         <Route path="/courses/edit/:id" element={<CourseEditPage />} />
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/teacher/courses" element={<AddCoursePage />} />
         <Route path="/teacher/courses/:id" element={<AddCoursePage />} />
         <Route path="/preview/:id" element={<Preview />} />

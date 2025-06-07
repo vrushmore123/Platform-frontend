@@ -63,7 +63,7 @@ export default function TeacherCoursesSection() {
 
         setCourses(
           publishedCourses.map((course) => {
-            const thumb = course.thumbnail_image;
+            const thumb = course.thumbnail_url || course.thumbnail_image;
             let thumbnailUrl;
 
             if (!thumb) {
@@ -267,8 +267,6 @@ export default function TeacherCoursesSection() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-    
-
       {/* Page Header */}
       <div className="bg-gradient-to-r from-teal-600 to-teal-800 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -62,19 +62,27 @@ const TeacherDashboard = () => {
         );
         if (!response.ok) throw new Error("Failed to fetch courses");
         const data = await response.json();
-        const coursesWithThumb = data.map((c) => ({
-          ...c,
-          thumbnail_image:
-            c.thumbnail_url || c.thumbnail_image || "/placeholder.svg",
-        }));
-        const draftCourses = coursesWithThumb.filter(
-          (c) => c.status === "draft"
-        );
-        const publishedCourses = coursesWithThumb.filter(
+
+        const coursesWithThumb = data.map((c) => {
+          const thumb = c.thumbnail_url || c.thumbnail_image;
+          let thumbnailUrl;
+          if (!thumb) {
+            thumbnailUrl = "/placeholder.svg";
+          } else if (/^(https?:\/\/|data:)/.test(thumb)) {
+            thumbnailUrl = thumb;
+          } else {
+            const BASE = "https://platform-backend-c4zp.onrender.com";
+            const cleaned = thumb.replace(/^\/+/, "");
+            thumbnailUrl = `${BASE}/${cleaned}`;
+          }
+          return { ...c, thumbnail_image: thumbnailUrl };
+        });
+        const draft = coursesWithThumb.filter((c) => c.status === "draft");
+        const published = coursesWithThumb.filter(
           (c) => c.status === "published"
         );
 
-        setCourses({ draft: draftCourses, published: publishedCourses });
+        setCourses({ draft, published });
         setStats({
           totalCourses: data.length,
           totalStudents: 57,
